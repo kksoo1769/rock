@@ -53,7 +53,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
             samples, targets = mixup_fn(samples, targets)
 
         if use_amp:
-            with torch.cuda.amp.autocast():
+            with torch.autocast(device_type='cuda', dtype=torch.bfloat16):
                 output = model(samples)
                 loss = criterion(output, targets)
         else: # full precision
@@ -158,7 +158,7 @@ def evaluate(data_loader, model, device, args, use_amp=False):
 
         # compute output
         if use_amp:
-            with torch.cuda.amp.autocast():
+            with torch.autocast(device_type='cuda', dtype=torch.bfloat16):
                 output = model(images)
                 loss = criterion(output, target)
         else:

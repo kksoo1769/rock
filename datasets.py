@@ -65,7 +65,7 @@ def build_transform(is_train, is_test, args):
         # this should always dispatch to transforms_imagenet_train
         transform = create_transform(
             input_size=args.input_size,
-            scale=(0.01, 1.0),
+            scale=(0.002, 1.0),
             hflip=.5,
             vflip=.5,
             is_training=True,
