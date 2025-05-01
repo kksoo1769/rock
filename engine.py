@@ -192,7 +192,7 @@ def test(data_loader, model, device, args, output_csv_path, sample_submission_pa
         imgs = imgs.to(device, non_blocking=True)
 
         if args.use_amp:
-            with torch.cuda.amp.autocast():
+            with torch.autocast(device_type='cuda', dtype=torch.bfloat16):
                 output = model(imgs)
         else:
             output = model(imgs)

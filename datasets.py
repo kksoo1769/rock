@@ -10,6 +10,8 @@ import os
 from torch.utils.data import Dataset
 from torchvision import datasets, transforms
 import torchvision.transforms.functional as F
+from torchvision.transforms import InterpolationMode
+import torchvision.transforms.functional as TF
 
 from timm.data.constants import \
     IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD, IMAGENET_INCEPTION_MEAN, IMAGENET_INCEPTION_STD
