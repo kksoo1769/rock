@@ -65,24 +65,34 @@ def build_transform(is_train, is_test, args):
 
     if is_train:
         # this should always dispatch to transforms_imagenet_train
-        transform = create_transform(
-            input_size=args.input_size,
-            scale=(0.002, 1.0),
-            hflip=.5,
-            vflip=.5,
-            is_training=True,
-            color_jitter=args.color_jitter,
-            auto_augment=args.aa,
-            interpolation=args.train_interpolation,
-            re_prob=args.reprob,
-            re_mode=args.remode,
-            re_count=args.recount,
-            mean=mean,
-            std=std,
-        )
-        if not resize_im:
-            transform.transforms[0] = transforms.RandomCrop(
-                args.input_size, padding=4)
+        # transform = create_transform(
+        #     input_size=args.input_size,
+        #     scale=args.scale,
+        #     hflip=.5,
+        #     vflip=.5,
+        #     is_training=True,
+        #     color_jitter=args.color_jitter,
+        #     auto_augment=args.aa,
+        #     interpolation=args.train_interpolation,
+        #     re_prob=args.reprob,
+        #     re_mode=args.remode,
+        #     re_count=args.recount,
+        #     mean=mean,
+        #     std=std,
+        # )
+        # if not resize_im:
+        #     transform.transforms[0] = transforms.RandomCrop(
+        #         args.input_size, padding=4)
+        # return transform
+        transform = transforms.Compose([
+            transforms.RandomResizedCrop(384, scale=args.scale, interpolation=InterpolationMode.BICUBIC),
+            transforms.ColorJitter(brightness=args.color_jitter, contrast=args.color_jitter),
+            transforms.RandomHorizontalFlip(p=0.5),
+            transforms.RandomVerticalFlip(p=0.5),
+            transforms.RandomRotation(degrees=15),
+            transforms.ToTensor(),
+            transforms.Normalize(mean, std),
+        ])
         return transform
 
     t = []
@@ -105,7 +115,7 @@ def build_transform(is_train, is_test, args):
                 )
                 t.append(transforms.CenterCrop(args.input_size))
             else:
-                t.append(transforms.Resize((args.input_size, args.input_size), interpolation=transforms.InterpolationMode.BICUBIC))
+                t.append(transforms.Resize(args.input_size, interpolation=transforms.InterpolationMode.BICUBIC))
 
     t.append(transforms.ToTensor())
     t.append(transforms.Normalize(mean, std))

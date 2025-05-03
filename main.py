@@ -31,7 +31,7 @@ from engine import train_one_epoch, evaluate, test
 from utils import NativeScalerWithGradNormCount as NativeScaler
 import utils
 
-from models.convnext import convnext_base
+from models.convnext import convnext_base, convnext_large
 
 
 def str2bool(v):
@@ -99,7 +99,9 @@ def get_args_parser():
     parser.add_argument('--warmup_steps', type=int, default=-1, metavar='N',
                         help='num of steps to warmup LR, will overload warmup_epochs if set > 0')
 
-    # Augmentation parameters
+    # Augmentation parameter
+    parser.add_argument('--scale', type=float, default=[0.08, 1.0], nargs='+',
+                        help='Scale factor (default: 0.0)')
     parser.add_argument('--color_jitter', type=float, default=0., metavar='PCT',
                         help='Color jitter factor (default: 0.0)')
     parser.add_argument('--aa', type=str, default=None, metavar='NAME',
@@ -320,6 +322,15 @@ def main(args):
             layer_scale_init_value=args.layer_scale_init_value,
             head_init_scale=args.head_init_scale
         )
+    elif args.model == 'convnext_large':
+        model = convnext_large(
+            pretrained=False,
+            in_chans=3,
+            num_classes=args.nb_classes,
+            drop_path_rate=args.drop_path,
+            layer_scale_init_value=args.layer_scale_init_value,
+            head_init_scale=args.head_init_scale
+        )
     else:
         raise ValueError
 
@@ -444,7 +455,7 @@ def main(args):
             wandb_logger.set_steps()
         train_stats = train_one_epoch(
             model, criterion, data_loader_train, optimizer,
-            device, epoch, loss_scaler, args.clip_grad, model_ema, mixup_fn,
+            device, epoch, loss_scaler, args, args.clip_grad, model_ema, mixup_fn,
             log_writer=log_writer, wandb_logger=wandb_logger, start_steps=epoch * num_training_steps_per_epoch,
             lr_schedule_values=lr_schedule_values, wd_schedule_values=wd_schedule_values,
             num_training_steps_per_epoch=num_training_steps_per_epoch, update_freq=args.update_freq,
@@ -486,7 +497,7 @@ def main(args):
                         utils.save_model(
                             args=args, model=model, model_without_ddp=model_without_ddp, optimizer=optimizer,
                             loss_scaler=loss_scaler, epoch="best-ema", model_ema=model_ema)
-                    print(f'Max EMA f1 score: {max_f1_ema * 100:.2f}%')
+                print(f'Max EMA f1 score: {max_f1_ema * 100:.2f}%')    
                 if log_writer is not None:
                     log_writer.update(val_f1_ema=val_stats_ema['f1'], head="perf", step=epoch)
                 log_stats.update({**{f'val_{k}_ema': v for k, v in val_stats_ema.items()}})

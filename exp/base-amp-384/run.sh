@@ -21,6 +21,7 @@ torchrun --nproc_per_node="$N_GPUS" --master_port="$MASTER_PORT" ../../main.py \
     --layer_decay 0.8 \
     --min_lr 1e-6 \
     --warmup_epochs 10 \
+    --scale 0.002 1.0 \
     --color_jitter 0.2 \
     --aa 'rand-m9-mstd0.5' \
     --smoothing 0.1 \
