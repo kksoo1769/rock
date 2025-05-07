@@ -7,10 +7,12 @@ MASTER_PORT=$((12000 + $RANDOM % 20000))
 torchrun --nproc_per_node="$N_GPUS" --master_port="$MASTER_PORT" ../../main.py \
     --batch_size 256 \
     --model convnext_base \
+    --model_ema True \
     --input_size 384 \
     --data_path '/nas/Dataset/Dacon/rock/train' \
     --test_data_path '/nas/Dataset/Dacon/rock/test' \
     --output_csv_path '/home/kks/workspace/rock/exp/base-amp-384-2-full/submission.csv' \
+    --ema_output_csv_path '/home/kks/workspace/rock/exp/base-amp-384-2-full/submission-ema.csv' \
     --sample_submission_path '/nas/Dataset/Dacon/rock/sample_submission.csv' \
     --nb_classes 7 \
     --imagenet_default_mean_and_std True \

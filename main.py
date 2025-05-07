@@ -156,6 +156,8 @@ def get_args_parser():
                         help='dataset path for test')
     parser.add_argument('--output_csv_path', default=None, type=str,
                         help='outptut csv path for test')
+    parser.add_argument('--ema_output_csv_path', default=None, type=str,
+                        help='EMA outptut csv path for test')
     parser.add_argument('--sample_submission_path', default=None, type=str,
                         help='submission path to save csv file')
     parser.add_argument('--nb_classes', default=1000, type=int,
@@ -437,7 +439,8 @@ def main(args):
     if args.eval:
         print(f"Eval only mode")
         idx_to_cls = {idx: cls for cls, idx in dataset_train.class_to_idx.items()}
-        test(data_loader_test, model, device, args, args.output_csv_path, args.sample_submission_path, idx_to_cls)
+        # test(data_loader_test, model, device, args, args.output_csv_path, args.sample_submission_path, idx_to_cls)
+        test(data_loader_test, model_ema.ema, device, args, args.ema_output_csv_path, args.sample_submission_path, idx_to_cls)
         return
 
     max_f1 = 0.0
