@@ -46,11 +46,42 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
                 if wd_schedule_values is not None and param_group["weight_decay"] > 0:
                     param_group["weight_decay"] = wd_schedule_values[it]
 
+        # if data_iter_step == 0 and utils.is_main_process():
+        #     # args.imagenet_default_mean_and_std 에 따른 값
+        #     if args.imagenet_default_mean_and_std:
+        #         mean = [0.485, 0.456, 0.406]
+        #         std  = [0.229, 0.224, 0.225]
+        #     else:        # inception mean/std
+        #         mean = [0.5, 0.5, 0.5]
+        #         std  = [0.5, 0.5, 0.5]
+
+        #     utils.visualize_first_batch(
+        #         samples, mean, std,
+        #         save_path=os.path.join(args.output_dir, f"first_batch_epoch{epoch}.png"),
+        #         nrow=min(8, samples.size(0))
+        #     )
+
         samples = samples.to(device, non_blocking=True)
         targets = targets.to(device, non_blocking=True)
 
         if mixup_fn is not None:
             samples, targets = mixup_fn(samples, targets)
+
+            # if data_iter_step == 0 and utils.is_main_process():
+            #     # args.imagenet_default_mean_and_std 에 따른 값
+            #     if args.imagenet_default_mean_and_std:
+            #         mean = [0.485, 0.456, 0.406]
+            #         std  = [0.229, 0.224, 0.225]
+            #     else:        # inception mean/std
+            #         mean = [0.5, 0.5, 0.5]
+            #         std  = [0.5, 0.5, 0.5]
+
+            #     utils.visualize_first_batch(
+            #         samples, mean, std,
+            #         save_path=os.path.join(args.output_dir, f"first_batch_epoch{epoch}_mixup.png"),
+            #         nrow=min(8, samples.size(0))
+            #     )
+
 
         if use_amp:
             with torch.autocast(device_type=args.device, dtype=torch.bfloat16):

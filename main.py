@@ -32,6 +32,7 @@ from utils import NativeScalerWithGradNormCount as NativeScaler
 import utils
 
 from models.convnext import convnext_base, convnext_large
+from models.convnextv2 import convnextv2_large
 
 
 def str2bool(v):
@@ -333,6 +334,13 @@ def main(args):
             layer_scale_init_value=args.layer_scale_init_value,
             head_init_scale=args.head_init_scale
         )
+    elif args.model == 'convnextv2_large':
+        model = convnextv2_large(
+            in_chans=3,
+            num_classes=args.nb_classes,
+            drop_path_rate=args.drop_path,
+            head_init_scale=args.head_init_scale
+        )
     else:
         raise ValueError
 
@@ -386,8 +394,8 @@ def main(args):
 
     if args.layer_decay < 1.0 or args.layer_decay > 1.0:
         num_layers = 12 # convnext layers divided into 12 parts, each with a different decayed lr value.
-        assert args.model in ['convnext_small', 'convnext_base', 'convnext_large', 'convnext_xlarge'], \
-             "Layer Decay impl only supports convnext_small/base/large/xlarge"
+        # assert args.model in ['convnext_small', 'convnext_base', 'convnext_large', 'convnext_xlarge'], \
+        #      "Layer Decay impl only supports convnext_small/base/large/xlarge"
         assigner = LayerDecayValueAssigner(list(args.layer_decay ** (num_layers + 1 - i) for i in range(num_layers + 2)))
     else:
         assigner = None
@@ -439,7 +447,7 @@ def main(args):
     if args.eval:
         print(f"Eval only mode")
         idx_to_cls = {idx: cls for cls, idx in dataset_train.class_to_idx.items()}
-        # test(data_loader_test, model, device, args, args.output_csv_path, args.sample_submission_path, idx_to_cls)
+        test(data_loader_test, model, device, args, args.output_csv_path, args.sample_submission_path, idx_to_cls)
         test(data_loader_test, model_ema.ema, device, args, args.ema_output_csv_path, args.sample_submission_path, idx_to_cls)
         return
 

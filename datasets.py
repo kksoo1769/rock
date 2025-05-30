@@ -85,7 +85,7 @@ def build_transform(is_train, is_test, args):
         #         args.input_size, padding=4)
         # return transform
         transform = transforms.Compose([
-            transforms.RandomResizedCrop(384, scale=args.scale, interpolation=InterpolationMode.BICUBIC),
+            transforms.RandomResizedCrop(args.input_size, scale=args.scale, interpolation=InterpolationMode.BICUBIC),
             transforms.ColorJitter(brightness=args.color_jitter, contrast=args.color_jitter),
             transforms.RandomHorizontalFlip(p=0.5),
             transforms.RandomVerticalFlip(p=0.5),

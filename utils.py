@@ -418,7 +418,7 @@ def get_grad_norm_(parameters, norm_type: float = 2.0) -> torch.Tensor:
     if len(parameters) == 0:
         return torch.tensor(0.)
     device = parameters[0].grad.device
-    if norm_type == inf:
+    if norm_type == math.inf:
         total_norm = max(p.grad.detach().abs().max().to(device) for p in parameters)
     else:
         total_norm = torch.norm(torch.stack([torch.norm(p.grad.detach(), norm_type).to(device) for p in parameters]), norm_type)
@@ -551,3 +551,24 @@ def auto_load_model(args, model, model_without_ddp, optimizer, loss_scaler, mode
 
         print("Model weights loaded. (optimizer, scaler loaded only if available)")
 
+
+import torchvision.utils as vutils
+from torchvision.transforms.functional import to_pil_image
+import os
+
+def visualize_first_batch(tensors, mean, std, save_path, nrow=8):
+    """
+    tensors : (B, C, H, W)  - Normalize 된 이미지 텐서
+    mean, std : 리스트(float)  - Normalize 할 때 쓴 값
+    save_path : 저장할 파일 경로
+    """
+    # 되돌리기 → (tensor * std) + mean
+    denorm = tensors.clone().cpu()
+    for c in range(denorm.size(1)):
+        denorm[:, c].mul_(std[c]).add_(mean[c])
+    denorm.clamp_(0, 1)
+
+    grid = vutils.make_grid(denorm, nrow=nrow, padding=2)
+    img = to_pil_image(grid)
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    img.save(save_path)
